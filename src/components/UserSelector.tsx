@@ -1,10 +1,21 @@
-import React from 'react';
+/* eslint-disable no-console */
+/* eslint-disable jsx-a11y/interactive-supports-focus */
+import React, { useState, useContext } from 'react';
+import { AppContext } from '../contexts/AppContext';
 
 export const UserSelector: React.FC = () => {
+  const [menuActive, setMenuActive] = useState(false);
+
+  const {
+    users,
+    selectedUser,
+    updateSelectedUser,
+  } = useContext(AppContext);
+
   return (
     <div
       data-cy="UserSelector"
-      className="dropdown is-active"
+      className={`dropdown ${menuActive ? 'is-active' : ''}`}
     >
       <div className="dropdown-trigger">
         <button
@@ -12,8 +23,15 @@ export const UserSelector: React.FC = () => {
           className="button"
           aria-haspopup="true"
           aria-controls="dropdown-menu"
+          onClick={() => {
+            setMenuActive(!menuActive);
+          }}
         >
-          <span>Choose a user</span>
+          <span>
+            {users.find((user) => {
+              return user.id === selectedUser;
+            })?.name || 'Choose a user' }
+          </span>
 
           <span className="icon is-small">
             <i className="fas fa-angle-down" aria-hidden="true" />
@@ -21,13 +39,29 @@ export const UserSelector: React.FC = () => {
         </button>
       </div>
 
-      <div className="dropdown-menu" id="dropdown-menu" role="menu">
+      <div
+        className="dropdown-menu"
+        id="dropdown-menu"
+        role="menu"
+      >
         <div className="dropdown-content">
-          <a href="#user-1" className="dropdown-item">Leanne Graham</a>
-          <a href="#user-2" className="dropdown-item is-active">Ervin Howell</a>
-          <a href="#user-3" className="dropdown-item">Clementine Bauch</a>
-          <a href="#user-4" className="dropdown-item">Patricia Lebsack</a>
-          <a href="#user-5" className="dropdown-item">Chelsey Dietrich</a>
+          {users.map(user => (
+            <a
+              key={user.id}
+              href={`user-${user.id}`}
+              className={`dropdown-item ${selectedUser === user.id ? 'is-active' : ''}`}
+              onClick={(event) => {
+                event.preventDefault();
+                setMenuActive(false);
+
+                if (selectedUser !== user.id) {
+                  updateSelectedUser(user.id);
+                }
+              }}
+            >
+              {user.name}
+            </a>
+          ))}
         </div>
       </div>
     </div>
